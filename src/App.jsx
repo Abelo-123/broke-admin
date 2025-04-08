@@ -224,7 +224,7 @@ function App() {
                     const updatedAmount = data.amount + data.cost;
                     const { error: updateError } = await supabase
                       .from('customer')
-                      .update({ status: 'approved', amount: updatedAmount })
+                      .update({ status: 'approved', amount: updatedAmount, link }) // Include link in the update
                       .eq('image', modalImage);
   
                     if (updateError) {
