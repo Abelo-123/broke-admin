@@ -211,7 +211,7 @@ function App() {
                     // Fetch the customer data for the modal image
                     const { data, error: fetchError } = await supabase
                       .from('customer')
-                      .select('amount, cost')
+                      .select('amount, cost, link, ref')
                       .eq('image', modalImage)
                       .single();
   
@@ -221,17 +221,37 @@ function App() {
                     }
   
                     // Update the status and amount
-                    const updatedAmount = data.amount + data.cost;
+                   
                     const { error: updateError } = await supabase
                       .from('customer')
-                      .update({ status: 'approved', amount: updatedAmount, link }) // Include link in the update
+                      .update({ status: 'approved', user_link:data.link }) // Include link in the update
                       .eq('image', modalImage);
   
                     if (updateError) {
                       console.error('Error updating customer:', updateError);
                     } else {
-                      alert('Status updated to approved and amount updated!');
-                      closeModal(); // Close the modal after updating
+                      const { data: data2, error: fetchError2 } = await supabase
+                        .from('customer')
+                        .select('amount')
+                        .eq('uid', data.ref);
+  
+                      if (fetchError2 || !data2 || data2.length === 0) {
+                        console.warn(`No matching customer found for the given ref ${data.ref}. Skipping amount update.`);
+                        alert('No matching customer found for the given reference. Please verify the data.');
+                      } else {
+                        const totalAmount = data2.reduce((sum, row) => sum + row.amount, 0) + data.cost; // Calculate the total amount
+                        const { error: updateError2 } = await supabase
+                          .from('customer')
+                          .update({ amount: totalAmount })
+                          .eq('uid', data.ref);
+  
+                        if (updateError2) {
+                          console.error('Error updating customer amount:', updateError2);
+                        } else {
+                          alert(`Status updated to approved and amount updated! and amount for ref ${data.ref}`);
+                          closeModal(); // Close the modal after updating
+                        }
+                      }
                     }
                   } catch (err) {
                     console.error('Unexpected error:', err);
