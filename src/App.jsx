@@ -309,7 +309,7 @@ if (target) {
             </button>
           </div>
         </div>
-        <div class="w-11/12 mx-auto p-2 overflow-scroll">
+        <div class="w-11/12 mx-auto p-2 scrollabler overflow-scroll">
         <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
           <thead>
             <tr class="bg-gray-200 text-gray-800">

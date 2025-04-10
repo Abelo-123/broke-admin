@@ -4,6 +4,34 @@
 
 
 
+.scrollabler {
+  overflow: auto; /* Enable vertical scrolling */
+  /* Optional border for visibility */
+  scrollbar-width: thin; /* For Firefox: thin scrollbar */
+  scrollbar-color: var(--tgui--section_header_text_color) var(--tgui--secondary_bg_color); /* For Firefox: thumb and track color */
+}
+
+/* Webkit Browsers (Chrome, Edge, Safari) */
+.scrollabler::-webkit-scrollbar {
+  width: 8px; /* Width of scrollbar */
+}
+
+.scrollabler::-webkit-scrollbar-thumb {
+  background:  var(--tgui--section_header_text_color);
+  border-radius: 4px; /* Rounded corners */
+}
+
+.scrollabler::-webkit-scrollbar-thumb:hover {
+  background: var(--tgui--section_header_text_color); /* Darker thumb on hover */
+}
+
+.scrollabler::-webkit-scrollbar-track {
+  background: var(--tgui--secondary_bg_color); /* Track background */
+  border-radius: 4px; /* Rounded track corners */
+}
+
+
+
 .spinner {
   width: 50px;
   height: 50px;
