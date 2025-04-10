@@ -166,7 +166,7 @@ if (target) {
             
               <div style={{fontSize:'13px', color:'gray'}}>Withdrawl history</div>
           
-            
+          <div class="overflow-y-auto h-96">  
               <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
               <thead>
   <tr className="bg-gray-200 text-gray-800">
@@ -199,7 +199,7 @@ if (target) {
 </tbody>
 
         </table>
-
+</div>
             </div>
           </div>
         </div>
@@ -246,7 +246,7 @@ if (target) {
                   onChange={(e) => setLink(e.target.value)} // Add state to capture input
                 />
                 <button
-                  class="ml-2 p-2 bg-red-200 w-auto"
+                  class="ml-2 p-2 bg-gray-200 w-auto"
                   onClick={async () => {
                     try {
                       const { error } = await supabase
@@ -276,7 +276,7 @@ if (target) {
                   onChange={(e) => setAmount(e.target.value)}
                 />
                 <button
-                  class="ml-2 p-2 bg-red-200 w-auto"
+                  class="ml-2 p-2 bg-gray-200 w-auto"
                   onClick={async () => {
                     try {
                       const { error } = await supabase
@@ -309,7 +309,7 @@ if (target) {
             </button>
           </div>
         </div>
-        <div class="w-11/12 mx-auto p-2 scrollabler overflow-scroll">
+        <div class="w-11/12 h-96 mx-auto p-2 scrollabler overflow-scroll">
         <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
           <thead>
             <tr class="bg-gray-200 text-gray-800">
