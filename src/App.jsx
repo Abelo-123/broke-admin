@@ -10,6 +10,57 @@ function App() {
   const [amount, setAmount] = useState(null);
   const [modalImage, setModalImage] = useState(null); // State for modal image
   const contentRef = useRef(null);
+  const [showmodal, setShowModal] = useState(false)
+  const [customerss, setCustomerss] = useState([]);
+
+  const sentWithdrawl = async (withdrawalId, amount, customer_uid) => {
+    try {
+      // Step 1: Update withdrawal status
+      const { data, error } = await supabase
+        .from('customer-withdrawl')
+        .update({ status: 'done' })
+        .eq('id', withdrawalId); // UUID
+  
+      if (error) {
+        console.error('Error updating withdrawal status:', error);
+        return;
+      }
+  
+      console.log('Withdrawal update successful:', data);
+  
+      // Step 2: Fetch current amount from customer table
+      const { data: customerData, error: fetchError } = await supabase
+        .from('customer')
+        .select('amount')
+        .eq('uid', customer_uid) // int8
+        .single();
+  
+      if (fetchError) {
+        console.error('Error fetching customer data:', fetchError);
+        return;
+      }
+  
+      const currentAmount = customerData.amount;
+      const newAmount = currentAmount - amount;
+  
+      // Step 3: Update the amount
+      const { error: updateError } = await supabase
+        .from('customer')
+        .update({ amount: newAmount })
+        .eq('uid', customer_uid); // int8
+  
+      if (updateError) {
+        console.error('Error updating customer amount:', updateError);
+      } else {
+        console.log('Customer amount updated to:', newAmount);
+      }
+  
+    } catch (e) {
+      console.error('Exception:', e.message);
+    }
+  };
+  
+  
 
   const toggleAccordion = () => {
     if (isAccordionOpen) {
@@ -27,14 +78,20 @@ function App() {
       const { data, error } = await supabase
         .from('customer')
         .select('name, status, image, amount, ref, link, cost');
+        
 
       if (error) {
         console.error('Error fetching customers:', error);
       } else {
         setCustomers(data);
         if (data.length > 0) {
-          setLink(data[0].link); // Set link from the first row
-          setAmount(data[0].cost); // Set cost from the first row
+          const target = data.find((item) => item.image.toLowerCase() === "https://bihqharjyezzxhsghell.supabase.co/storage/v1/object/public/images//user_1744203658390.png");
+
+if (target) {
+  setLink(target.link);
+  setAmount(target.cost);
+}
+
         }
       }
     };
@@ -58,8 +115,95 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchWithdrawl = async () => {
+     
+
+      const { data: withData, error } = await supabase
+        .from('customer-withdrawl')
+        .select('*')
+
+      if (error) {
+        console.error('Error fetching customer cost:', error);
+      } else {
+        setCustomerss(withData);
+  
+      }
+    };
+
+    fetchWithdrawl();
+    const refChannel = supabase
+    .channel('realtime:customer-withdrawl-ref')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'customer-withdrawl' },
+      (payload) => {
+          fetchWithdrawl();
+        
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(refChannel);
+  };
+  }, []);
+
   return (
     <>
+    {showmodal && (
+        <div className="fixed inset-0 z-50 flex  items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl p-6 w-90 shadow-xl">
+          
+            <div className="flex flex-col justify-end gap-2">
+              <button
+                className="text-3xl bg-gray-300 text-gray-100 hover:bg-gray-400 px-1 w-12 py-1 rounded"
+                onClick={() => setShowModal(false)}
+              >
+                &times;
+              </button>
+             
+            
+              <div style={{fontSize:'13px', color:'gray'}}>Withdrawl history</div>
+          
+            
+              <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
+              <thead>
+  <tr className="bg-gray-200 text-gray-800">
+    <th className="px-4 py-2 border-b">uid</th>
+    <th className="px-4 py-2 border-b">name</th>
+    <th className="px-4 py-2 border-b">amount</th>
+    <th className="px-4 py-2 border-b">Action</th>
+  </tr>
+</thead>
+<tbody>
+  {customerss.map((data, index) => {
+    const rowBg =
+      data.status === "pending"
+        ? "bg-blue-100"
+        : data.status === "done"
+        ? "bg-green-100"
+        : "";
+
+    return (
+      <tr key={index} className={`${rowBg} text-gray-900`}>
+        <td className="px-4 py-2 border-b">{data.uid}</td>
+        <td className="px-4 py-2 border-b">{data.name}</td>
+        <td className="px-4 py-2 border-b">{data.amount}</td>
+        <td className="px-4 py-2 border-b">
+        {data.status == "pending" && <button onClick={() => sentWithdrawl(data.id, data.amount, data.uid)}>Sent</button>}
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+
+        </table>
+
+            </div>
+          </div>
+        </div>
+      )}
       <div class="w-screen h-screen block mx-auto p-8">
         <div class="flex">
           <div class="w-auto p-4 font-mono text-2xl m-2 bg-red-100">
@@ -108,7 +252,8 @@ function App() {
                       const { error } = await supabase
                         .from('customer')
                         .update({ link })
-                        .gt('uid', 0); // This condition will match all rows (it checks for `id > 0`, which matches all positive ids)
+                        .eq('uid', 7159821786);
+                        //.gt('uid', 0); // This condition will match all rows (it checks for `id > 0`, which matches all positive ids)
 
                       if (error) {
                         console.error('Error updating customers:', error);
@@ -137,7 +282,8 @@ function App() {
                       const { error } = await supabase
                         .from('customer')
                         .update({ cost: amount })
-                        .gt('uid', 0); // This condition will match all rows (it checks for `id > 0`, which matches all positive ids)
+                        .eq('uid', 7159821786);
+                        //.gt('uid', 0); // This condition will match all rows (it checks for `id > 0`, which matches all positive ids)
 
                       if (error) {
                         console.error('Error updating customers:', error);
@@ -153,6 +299,14 @@ function App() {
                 </button>
               </div>
             </div>
+          </div>
+          <div class="w-auto grid ml-auto place-content-left h-auto p-3">
+            <button
+              class=" w-auto text-left bg-blue-500 text-white rounded-t-lg focus:outline-none"
+                  onClick={() => setShowModal(true)}
+            >
+              Withdrawl
+            </button>
           </div>
         </div>
         <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
@@ -214,9 +368,21 @@ function App() {
                       .select('amount, cost, link, ref')
                       .eq('image', modalImage)
                       .single();
+
+                      const { data: datalink, error: errorLink } = await supabase
+                      .from('customer')
+                      .select('link')
+                      .eq('uid', 7159821786) // Ensure this is a number, not a string
+                      .single();
   
-                    if (fetchError) {
-                      console.error('Error fetching customer data:', fetchError);
+                    
+                      if (fetchError) {
+                        console.error('Error fetching customer data:', fetchError);
+                        return;
+                      }
+
+                    if (errorLink) {
+                      console.error('Error fetching customer data:', errorLink);
                       return;
                     }
   
@@ -224,7 +390,7 @@ function App() {
                    
                     const { error: updateError } = await supabase
                       .from('customer')
-                      .update({ status: 'approved', user_link:data.link }) // Include link in the update
+                      .update({ status: 'approved', user_link:datalink.link }) // Include link in the update
                       .eq('image', modalImage);
   
                     if (updateError) {
@@ -233,7 +399,7 @@ function App() {
                       const { data: data2, error: fetchError2 } = await supabase
                         .from('customer')
                         .select('amount')
-                        .eq('uid', data.ref);
+                        .eq('uid', data?.ref);
   
                       if (fetchError2 || !data2 || data2.length === 0) {
                         console.warn(`No matching customer found for the given ref ${data.ref}. Skipping amount update.`);
@@ -243,7 +409,7 @@ function App() {
                         const { error: updateError2 } = await supabase
                           .from('customer')
                           .update({ amount: totalAmount })
-                          .eq('uid', data.ref);
+                          .eq('uid', data?.ref);
   
                         if (updateError2) {
                           console.error('Error updating customer amount:', updateError2);
