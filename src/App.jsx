@@ -242,7 +242,7 @@ if (target) {
                 <input
                   type="text"
                   placeholder="Link"
-                  class="py-1 px-2  bg-gray-600
+                  class="py-1 px-2 text-gray-900   bg-gray-600"
                   onChange={(e) => setLink(e.target.value)} // Add state to capture input
                 />
                 <button
