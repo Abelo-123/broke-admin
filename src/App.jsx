@@ -242,11 +242,11 @@ if (target) {
                 <input
                   type="text"
                   placeholder="Link"
-                  class="py-1 px-2 bg-gray-100"
+                  class="py-1 px-2  bg-gray-600
                   onChange={(e) => setLink(e.target.value)} // Add state to capture input
                 />
                 <button
-                  class="ml-2 p-2 bg-gray-200 w-auto"
+                  class="ml-2 p-2  bg-gray-600 w-auto"
                   onClick={async () => {
                     try {
                       const { error } = await supabase
@@ -272,11 +272,11 @@ if (target) {
                 <input
                   type="text"
                   placeholder="Cost"
-                  class="py-1 px-2 bg-gray-100"
+                  class="py-1 px-2   bg-gray-600"
                   onChange={(e) => setAmount(e.target.value)}
                 />
                 <button
-                  class="ml-2 p-2 bg-gray-200 w-auto"
+                  class="ml-2 p-2  bg-gray-600 w-auto"
                   onClick={async () => {
                     try {
                       const { error } = await supabase
