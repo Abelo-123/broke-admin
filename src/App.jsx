@@ -205,13 +205,13 @@ if (target) {
         </div>
       )}
       <div class="w-screen h-screen block mx-auto p-8">
-        <div class="flex">
-          <div class="w-auto p-4 font-mono text-2xl m-2 bg-red-100">
+        <div class="flex flex-col">
+          <div class="w-auto p-4 font-mono text-1xl m-2 ">
             Link: {link}
             <br />
             Cost: {amount} ETB Birr
           </div>
-          <div class="w-auto grid ml-auto place-content-left h-auto p-3">
+          <div class="w-auto grid mr-auto place-content-left h-auto p-3">
             <button
               class="accordion-header w-auto text-left bg-blue-500 text-white rounded-t-lg focus:outline-none"
               onClick={toggleAccordion}
@@ -322,7 +322,7 @@ if (target) {
           </thead>
           <tbody>
             {customers.map((data, index) => (
-              <tr key={index} class="bg-gray-50">
+              <tr key={index} class="text-gray-600 bg-gray-50">
                 <td class="px-4 py-2 border-b text-center">{index + 1}</td>
                 <td class="px-4 py-2 border-b">{data.name}</td>
                 <td class="px-4 py-2 border-b text-center">
