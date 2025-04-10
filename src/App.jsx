@@ -352,7 +352,7 @@ if (target) {
             onClick={closeModal} // Close modal on background click
           >
             <div class="bg-white p-4 rounded-lg">
-              <img src={modalImage} alt="Modal" class="max-w-full max-h-screen" />
+              <img src={modalImage} style={{maxHeight:'35rem'}} alt="Modal" class="max-w-full " />
               <button
                 class="mt-2 p-2 bg-red-500 text-white rounded"
                 onClick={closeModal} // Close modal on button click
