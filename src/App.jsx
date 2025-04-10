@@ -204,7 +204,7 @@ if (target) {
           </div>
         </div>
       )}
-      <div class="w-screen h-screen block mx-auto p-8">
+      <div class="w-screen h-screen block mx-auto p-2">
         <div class="flex flex-col">
           <div class="w-auto p-4 font-mono text-1xl m-2 ">
             Link: {link}
@@ -234,19 +234,19 @@ if (target) {
               </span>
             </button>
             <div
-              class="accordion-content overflow-hidden transition-all duration-300 bg-blue-100 rounded-b-lg"
+              class="accordion-content overflow-y-hidden transition-all duration-300  rounded-b-lg"
               style={{ height: `${accordionHeight}px` }}
               ref={contentRef}
             >
-              <div class="p-2 flex w-auto bg-red-100">
+              <div class="p-2 flex w-auto ">
                 <input
                   type="text"
                   placeholder="Link"
-                  class="py-2 px-2"
+                  class="py-1 px-2 bg-gray-100"
                   onChange={(e) => setLink(e.target.value)} // Add state to capture input
                 />
                 <button
-                  class="ml-2 p-4 bg-red-200 w-auto"
+                  class="ml-2 p-2 bg-red-200 w-auto"
                   onClick={async () => {
                     try {
                       const { error } = await supabase
@@ -268,15 +268,15 @@ if (target) {
                   Update
                 </button>
               </div>
-              <div class="p-2 flex w-auto bg-red-100">
+              <div class="p-2 flex w-auto ">
                 <input
                   type="text"
                   placeholder="Cost"
-                  class="py-2 px-2"
+                  class="py-1 px-2 bg-gray-100"
                   onChange={(e) => setAmount(e.target.value)}
                 />
                 <button
-                  class="ml-2 p-4 bg-red-200 w-auto"
+                  class="ml-2 p-2 bg-red-200 w-auto"
                   onClick={async () => {
                     try {
                       const { error } = await supabase
@@ -309,6 +309,7 @@ if (target) {
             </button>
           </div>
         </div>
+        <div class="w-11/12 mx-auto p-2 overflow-scroll">
         <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
           <thead>
             <tr class="bg-gray-200 text-gray-800">
@@ -343,6 +344,7 @@ if (target) {
             ))}
           </tbody>
         </table>
+        </div>
         {/* Modal for displaying image */}
         {modalImage && (
           <div
