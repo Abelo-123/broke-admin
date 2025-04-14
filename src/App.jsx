@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 import { supabase } from './supabaseClient'; // Import Supabase client
+import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome CSS
 
 function App() {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
@@ -319,6 +320,7 @@ if (target) {
               <th class="px-4 py-2 border-b">Action</th>
               <th class="px-4 py-2 border-b">Ref</th>
               <th class="px-4 py-2 border-b">Amount</th>
+              <th class="px-4 py-2 border-b">Chat</th>
             </tr>
           </thead>
           <tbody>
@@ -331,21 +333,26 @@ if (target) {
                     src={data.image}
                     alt={data.name}
                     class="h-10 w-10 rounded-full cursor-pointer"
-                    onClick={() => setModalImage(data.image)} // Set modal image on click
-                  />
-                </td>
-                <td class="px-4 py-2 border-b">
-                  {data.status}
-               
-                </td>
-                <td class="px-4 py-2 border-b">{data.ref}</td>
-                <td class="px-4 py-2 border-b">{data.amount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
-        {/* Modal for displaying image */}
+                     // Set modal image on click
+                              />
+                            </td>
+                            <td class="px-4 py-2 border-b">
+                              {data.status}
+                             
+                            </td>
+                            <td class="px-4 py-2 border-b">{data.ref}</td>
+                            <td class="px-4 py-2 border-b">{data.amount}</td>
+                            <td class="px-4 py-2 border-b">  
+                              <a href={`https://t.me/${data.chat}`} target="_blank" rel="noopener noreferrer">
+                              <i className="fab fa-telegram-plane text-blue-500 text-xl"></i>
+                              </a>
+                            </td>
+                            </tr>
+                          ))}
+                          </tbody>
+                        </table>
+                        </div>
+                        {/* Modal for displaying image */}
         {modalImage && (
           <div
             class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
@@ -416,7 +423,6 @@ if (target) {
                         if (updateError2) {
                           console.error('Error updating customer amount:', updateError2);
                         } else {
-                          alert(`Status updated to approved and amount updated! and amount for ref ${data.ref}`);
                           closeModal(); // Close the modal after updating
                         }
                       }
@@ -427,6 +433,29 @@ if (target) {
                 }}
               >
                 Approved
+              </button>
+              &nbsp;&nbsp;
+              <button
+                class="mt-2 p-2 bg-blue-500 text-white rounded"
+                onClick={async () => {
+                  try {
+                    // Fetch the customer data for the modal image
+                    const { error: updateError } = await supabase
+                    .from('customer')
+                    .update({ status: 'cancel'}) // Include link in the update
+                    .eq('image', modalImage);
+
+                  if (updateError) {
+                    console.error('Error updating customer:', updateError);
+                  } else {
+                    closeModal();
+                  }
+                  } catch (err) {
+                    console.error('Unexpected error:', err);
+                  }
+                }}
+              >
+                Cancelled
               </button>
             </div>
           </div>
