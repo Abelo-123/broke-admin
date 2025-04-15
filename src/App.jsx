@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 import { supabase } from './supabaseClient'; // Import Supabase client
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome CSS
+import Swal from "sweetalert2"; // Import SweetAlert2
+
 
 function App() {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
@@ -9,10 +11,12 @@ function App() {
   const [customers, setCustomers] = useState([]); // State for customer data
   const [link, setLink] = useState(''); // State for link input
   const [amount, setAmount] = useState(null);
+  const [amounts, setAmounts] = useState(null);
   const [modalImage, setModalImage] = useState(null); // State for modal image
   const contentRef = useRef(null);
   const [showmodal, setShowModal] = useState(false)
   const [customerss, setCustomerss] = useState([]);
+ 
 
   const sentWithdrawl = async (withdrawalId, amount, customer_uid) => {
     try {
@@ -62,6 +66,15 @@ function App() {
   };
   
   
+  useEffect(() => {
+    const initialAmounts = {};
+    customers.forEach(customer => {
+      initialAmounts[customer.name] = customer.amount || '';  // Set initial amounts
+    });
+    setAmounts(initialAmounts);
+  }, [customers]);
+
+
 
   const toggleAccordion = () => {
     if (isAccordionOpen) {
@@ -78,12 +91,13 @@ function App() {
     const fetchData = async () => {
       const { data, error } = await supabase
         .from('customer')
-        .select('name, status, image, amount, ref, link, cost');
+        .select('name, status, image, amount, ref, link, cost, uid, chat');
         
 
       if (error) {
         console.error('Error fetching customers:', error);
       } else {
+        console.log(data)
         setCustomers(data);
         if (data.length > 0) {
           const target = data.find((item) => item.image.toLowerCase() === "https://bihqharjyezzxhsghell.supabase.co/storage/v1/object/public/images//user_1744203658390.png");
@@ -149,6 +163,28 @@ if (target) {
     supabase.removeChannel(refChannel);
   };
   }, []);
+
+  const handleAmountChange = async (customerName, newAmount) => {
+    try {
+      const { error } = await supabase
+        .from('customer')
+        .update({ amount: newAmount })
+        .eq('name', customerName);
+  
+      if (error) {
+        console.error('Error updating amount:', error);
+      } else {
+        console.log(`Amount updated for ${customerName}: ${newAmount}`);
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated',
+          text: `Amount updated for ${customerName}.`,
+        });
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+    }
+  };
 
   return (
     <>
@@ -341,11 +377,51 @@ if (target) {
                              
                             </td>
                             <td class="px-4 py-2 border-b">{data.ref}</td>
-                            <td class="px-4 py-2 border-b">{data.amount}</td>
+                            <td class="px-4 flex py-2 border-b">
+                            <input
+                              type="number"
+                              value={data.amount} // Set input value to current amount
+                              onChange={(e) => {
+                                const updatedCustomers = [...customers];
+                                updatedCustomers[index].amount = e.target.value;
+                                setCustomers(updatedCustomers);
+                              }} // Update the local state on input change
+                              className="border px-2 py-1"
+                            />
+                            <button
+                              onClick={() => handleAmountChange(data.name, data.amount)}
+                              className="bg-blue-500  text-white px-4 py-2 rounded"
+                            >
+                              Update
+                            </button>
+                            </td>
                             <td class="px-4 py-2 border-b">  
                               <a href={`https://t.me/${data.chat}`} target="_blank" rel="noopener noreferrer">
                               <i className="fab fa-telegram-plane text-blue-500 text-xl"></i>
                               </a>
+                            </td>
+                            <td class="px-4 py-2 border-b">
+                            <a onClick={async () => {
+   
+
+    const { error } = await supabase
+      .from('customer')
+      .update({ ref: 1 })
+      .eq('uid', data.uid)
+      .single()
+
+    if (error) {
+      console.error("Failed to update banned status:", error);
+    } else {
+      Swal.fire({
+        icon: "success",
+        title: "Banned",
+        text: "Account banned.",
+      })
+    }
+  }}
+>{data.ref == 1 ? " " : "Ban"}</a>
+
                             </td>
                             </tr>
                           ))}
