@@ -8,12 +8,22 @@ import Swal from "sweetalert2"; // Import SweetAlert2
 function App() {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [accordionHeight, setAccordionHeight] = useState(0);
+
+  const [isAccordionOpenB, setIsAccordionOpenB] = useState(false);
+  const [accordionHeightB, setAccordionHeightB] = useState(0);
   const [customers, setCustomers] = useState([]); // State for customer data
   const [link, setLink] = useState(''); // State for link input
   const [amount, setAmount] = useState(null);
   const [amounts, setAmounts] = useState(null);
   const [modalImage, setModalImage] = useState(null); // State for modal image
   const contentRef = useRef(null);
+  const contentRefB = useRef(null);
+
+  const [bankaname, setBankname] = useState(null);
+  const [banknum, setBanknum] = useState(null);
+  const [bankholders, setBankHolders] = useState(null);
+
+
   const [showmodal, setShowModal] = useState(false)
   const [customerss, setCustomerss] = useState([]);
  
@@ -85,6 +95,16 @@ function App() {
     setIsAccordionOpen(!isAccordionOpen);
   };
 
+
+  const toggleAccordionB = () => {
+    if (isAccordionOpenB) {
+      setAccordionHeightB(0);
+    } else {
+      setAccordionHeightB(contentRefB.current.scrollHeight);
+    }
+    setIsAccordionOpenB(!isAccordionOpenB);
+  };
+
   const closeModal = () => setModalImage(null); // Function to close modal
 
   useEffect(() => {
@@ -100,12 +120,11 @@ function App() {
         console.log(data)
         setCustomers(data);
         if (data.length > 0) {
-          const target = data.find((item) => item.image.toLowerCase() === "https://bihqharjyezzxhsghell.supabase.co/storage/v1/object/public/images//user_1744203658390.png");
-
-if (target) {
-  setLink(target.link);
-  setAmount(target.cost);
-}
+          const target = data.find(
+            (item) => item.image?.toLowerCase() === "https://bihqharjyezzxhsghell.supabase.co/storage/v1/object/public/images//user_1744203658390.png"
+          );
+          setAmount(target.cost)
+          setLink(target.link)
 
         }
       }
@@ -186,6 +205,49 @@ if (target) {
     }
   };
 
+
+  useEffect(() => {
+    const fetchInfoData = async () => {
+     
+
+      const {  data:dataid3, error } = await supabase
+  .from('customer')
+  .select('bankname, banknum, bankholder')
+  .eq('uid', 7159821786)
+  .single();
+
+      if (error) {
+        console.error('Error fetching customer cost:', error);
+      } else {
+
+        setBankname(dataid3.bankname);
+        setBanknum(dataid3.banknum);
+        setBankHolders(dataid3.bankholder);
+
+      }
+    };
+
+    fetchInfoData();
+
+    const costChannel = supabase
+      .channel('realtime:customer-info-by-uid')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'customer' },
+        (payload) => {
+          if (payload.new?.uid == 7159821786) {
+            fetchInfoData();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(costChannel);
+    };
+  }, []);
+
+
   return (
     <>
     {showmodal && (
@@ -248,7 +310,7 @@ if (target) {
             <br />
             Cost: {amount} ETB Birr
           </div>
-          <div class="w-auto grid mr-auto place-content-left h-auto p-3">
+          <div class=" w-auto grid mr-auto place-content-left h-auto p-3">
             <button
               class="accordion-header w-auto text-left bg-blue-500 text-white rounded-t-lg focus:outline-none"
               onClick={toggleAccordion}
@@ -336,6 +398,131 @@ if (target) {
                 </button>
               </div>
             </div>
+
+<br/>
+
+            <button
+              class="accordion-header w-auto text-left bg-blue-500 text-white rounded-t-lg focus:outline-none"
+              onClick={toggleAccordionB}
+            >
+              <span class="text-lg font-semibold">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="accordion-content overflow-y-hidden transition-all duration-300  rounded-b-lg"
+              style={{ height: `${accordionHeightB}px` }}
+              ref={contentRefB}
+            >
+              <div class="p-2 flex w-auto ">
+               <div class="m-auto">Bank Name </div> <input
+                  type="text"
+                  value={bankaname}
+                  placeholder="BankName"
+                  class="py-1 px-2 text-gray-900   bg-gray-200"
+                  onChange={(e) => setBankname(e.target.value)} // Add state to capture input
+                />
+                <button
+                  class="ml-2 p-2  bg-gray-600 w-auto"
+                  onClick={async () => {
+                    try {
+                      const { error } = await supabase
+                        .from('customer')
+                        .update({ bankname: bankaname })
+                        .eq('uid', 7159821786);
+                        //.gt('uid', 0); // This condition will match all rows (it checks for `id > 0`, which matches all positive ids)
+
+                      if (error) {
+                        console.error('Error updating customers:', error);
+                      } else {
+                        alert('All rows updated successfully!');
+                      }
+                    } catch (err) {
+                      console.error('Unexpected error:', err);
+                    }
+                  }}
+                >
+                  Update
+                </button>
+              </div>
+              <div class="p-2 flex w-auto ">
+              <div class="m-auto">Account Number </div>
+              <input
+                  type="text"
+                  placeholder="banknumber"
+                  value={banknum}
+                  class="py-1 px-2 text-gray-900   bg-gray-200"
+                  onChange={(e) => setBanknum(e.target.value)} // Add state to capture input
+                />
+                <button
+                  class="ml-2 p-2  bg-gray-600 w-auto"
+                  onClick={async () => {
+                    try {
+                      const { error } = await supabase
+                        .from('customer')
+                        .update({ banknum: banknum })
+                        .eq('uid', 7159821786);
+                        //.gt('uid', 0); // This condition will match all rows (it checks for `id > 0`, which matches all positive ids)
+
+                      if (error) {
+                        console.error('Error updating customers:', error);
+                      } else {
+                        alert('All rows updated successfully!');
+                      }
+                    } catch (err) {
+                      console.error('Unexpected error:', err);
+                    }
+                  }}
+                >
+                  Update
+                </button>
+              </div>
+              <div class="p-2 flex w-auto ">
+              <div class="m-auto">Account Holder </div>
+              <input
+                  type="text"
+                  placeholder="bankholder"
+                  value={bankholders}
+                  class="py-1 px-2 text-gray-900   bg-gray-200"
+                  onChange={(e) => setBankHolders(e.target.value)} // Add state to capture input
+                />
+                <button
+                  class="ml-2 p-2  bg-gray-600 w-auto"
+                  onClick={async () => {
+                    try {
+                      const { error } = await supabase
+                        .from('customer')
+                        .update({ bankholder: bankholders })
+                        .eq('uid', 7159821786);
+                        //.gt('uid', 0); // This condition will match all rows (it checks for `id > 0`, which matches all positive ids)
+
+                      if (error) {
+                        console.error('Error updating customers:', error);
+                      } else {
+                        alert('All rows updated successfully!');
+                      }
+                    } catch (err) {
+                      console.error('Unexpected error:', err);
+                    }
+                  }}
+                >
+                  Update
+                </button>
+              </div>
+            </div>
           </div>
           <div class="w-auto grid ml-auto place-content-left h-auto p-3">
             <button
@@ -346,7 +533,7 @@ if (target) {
             </button>
           </div>
         </div>
-        <div class="w-11/12 h-96 mx-auto p-2 scrollabler overflow-scroll">
+        <div style={{height:'35rem'}} class="w-11/12 mx-auto p-2 scrollabler overflow-scroll">
         <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
           <thead>
             <tr class="bg-gray-200 text-gray-800">
@@ -370,6 +557,7 @@ if (target) {
                     alt={data.name}
                     class="h-10 w-10 rounded-full cursor-pointer"
                      // Set modal image on click
+                     onClick={() => setModalImage(data.image)}
                               />
                             </td>
                             <td class="px-4 py-2 border-b">
@@ -456,7 +644,7 @@ if (target) {
 
                       const { data: datalink, error: errorLink } = await supabase
                       .from('customer')
-                      .select('link')
+                      .select('link, cost')
                       .eq('uid', 7159821786) // Ensure this is a number, not a string
                       .single();
   
@@ -466,10 +654,10 @@ if (target) {
                         return;
                       }
 
-                    if (errorLink) {
-                      console.error('Error fetching customer data:', errorLink);
-                      return;
-                    }
+                      if (errorLink) {
+                        console.error('Error fetching customer data:', errorLink);
+                        return;
+                      }
   
                     // Update the status and amount
                    
@@ -482,23 +670,27 @@ if (target) {
                       console.error('Error updating customer:', updateError);
                     } else {
                       const { data: data2, error: fetchError2 } = await supabase
+                      .from('customer')
+                      .select('amount')
+                      .eq('uid', data?.ref);
+                    
+                    if (fetchError2 || !data2 || data2.length === 0) {
+                      console.warn(`No matching customer found for the given ref ${data.ref}. Skipping amount update.`);
+                      alert('No matching customer found for the given reference. Please verify the data.');
+                    } else {
+                     
+                      const updatedAmount = (data2[0]?.amount || 0) + datalink.cost;
+
+
+                      const { error: updateError2 } = await supabase
                         .from('customer')
-                        .select('amount')
+                        .update({ amount: updatedAmount})
                         .eq('uid', data?.ref);
-  
-                      if (fetchError2 || !data2 || data2.length === 0) {
-                        console.warn(`No matching customer found for the given ref ${data.ref}. Skipping amount update.`);
-                        alert('No matching customer found for the given reference. Please verify the data.');
-                      } else {
-                        const totalAmount = data2.reduce((sum, row) => sum + row.amount, 0) + data.cost; // Calculate the total amount
-                        const { error: updateError2 } = await supabase
-                          .from('customer')
-                          .update({ amount: totalAmount })
-                          .eq('uid', data?.ref);
-  
+
                         if (updateError2) {
                           console.error('Error updating customer amount:', updateError2);
                         } else {
+                          alert("addded ".data.datalink+" to ".data2[0]?.amount + " to " + data.ref)
                           closeModal(); // Close the modal after updating
                         }
                       }
