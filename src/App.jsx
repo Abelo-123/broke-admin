@@ -590,25 +590,59 @@ function App() {
                             </td>
                             <td class="px-4 py-2 border-b">
                             <a onClick={async () => {
-   
-
-    const { error } = await supabase
+  if (data.ref == 1) {
+    const { data: oldData, error: fetchError } = await supabase
       .from('customer')
-      .update({ ref: 1 })
+      .select('replace') // Corrected to fetch 'replace' instead of 'ref'
       .eq('uid', data.uid)
-      .single()
+      .single();
 
-    if (error) {
-      console.error("Failed to update banned status:", error);
-    } else {
-      Swal.fire({
-        icon: "success",
-        title: "Banned",
-        text: "Account banned.",
-      })
+    if (fetchError) {
+      console.error("Failed to fetch unbanned status:", fetchError);
+    } else if (oldData) {
+      const { error: updateError } = await supabase
+        .from('customer')
+        .update({ ref: oldData.replace }) // Corrected to update 'ref' with 'replace'
+        .eq('uid', data.uid);
+
+      if (updateError) {
+        console.error("Failed to update unbanned status:", updateError);
+      } else {
+        Swal.fire({
+          icon: "success",
+          title: "Unbanned",
+          text: "Account unbanned.",
+        });
+      }
     }
-  }}
->{data.ref == 1 ? " " : "Ban"}</a>
+  } else {
+    const { data: oldData, error: fetchError } = await supabase
+      .from('customer')
+      .select('ref') // Corrected to fetch 'ref' instead of 'replace'
+      .eq('uid', data.uid)
+      .single();
+
+    if (fetchError) {
+      console.error("Failed to fetch banned status:", fetchError);
+    } else if (oldData && oldData.ref) {
+      const { error: updateError } = await supabase
+        .from('customer')
+        .update({ref:1,  replace: oldData.ref }) // Corrected to update 'replace' with 'ref'
+        .eq('uid', data.uid);
+
+      if (updateError) {
+        console.error("Failed to update banned status:", updateError);
+      } else {
+        Swal.fire({
+          icon: "success",
+          title: "Banned",
+          text: "Account banned.",
+        });
+      }
+    }
+  }
+}}
+>{data.ref == 1 ? "Unbanned" : "Ban"}</a>
 
                             </td>
                             </tr>
