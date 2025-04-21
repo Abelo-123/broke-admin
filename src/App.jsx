@@ -26,6 +26,7 @@ function App() {
 
   const [showmodal, setShowModal] = useState(false)
   const [customerss, setCustomerss] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
  
 
   const sentWithdrawl = async (withdrawalId, amount, customer_uid) => {
@@ -533,124 +534,131 @@ function App() {
             </button>
           </div>
         </div>
-        <div style={{height:'35rem'}} class="w-11/12 mx-auto p-2 scrollabler overflow-scroll">
-        <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
-          <thead>
-            <tr class="bg-gray-200 text-gray-800">
-              <th class="px-4 py-2 border-b">#</th>
-              <th class="px-4 py-2 border-b">User</th>
-              <th class="px-4 py-2 border-b">Image</th>
-              <th class="px-4 py-2 border-b">Action</th>
-              <th class="px-4 py-2 border-b">Ref</th>
-              <th class="px-4 py-2 border-b">Amount</th>
-              <th class="px-4 py-2 border-b">Chat</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((data, index) => (
-              <tr key={index} class="text-gray-600 bg-gray-50">
-                <td class="px-4 py-2 border-b text-center">{index + 1}</td>
-                <td class="px-4 py-2 border-b">{data.name}</td>
-                <td class="px-4 py-2 border-b text-center">
-                  <img
-                    src={data.image}
-                    alt={data.name}
-                    class="h-10 w-10 rounded-full cursor-pointer"
-                     // Set modal image on click
-                     onClick={() => setModalImage(data.image)}
-                              />
-                            </td>
-                            <td class="px-4 py-2 border-b">
-                              {data.status}
-                             
-                            </td>
-                            <td class="px-4 py-2 border-b">{data.ref}</td>
-                            <td class="px-4 flex py-2 border-b">
-                            <input
-                              type="number"
-                              value={data.amount} // Set input value to current amount
-                              onChange={(e) => {
-                                const updatedCustomers = [...customers];
-                                updatedCustomers[index].amount = e.target.value;
-                                setCustomers(updatedCustomers);
-                              }} // Update the local state on input change
-                              className="border px-2 py-1"
-                            />
-                            <button
-                              onClick={() => handleAmountChange(data.name, data.amount)}
-                              className="bg-blue-500  text-white px-4 py-2 rounded"
-                            >
-                              Update
-                            </button>
-                            </td>
-                            <td class="px-4 py-2 border-b">  
-                              <a href={`https://t.me/${data.chat}`} target="_blank" rel="noopener noreferrer">
-                              <i className="fab fa-telegram-plane text-blue-500 text-xl"></i>
-                              </a>
-                            </td>
-                            <td class="px-4 py-2 border-b">
-                            <a onClick={async () => {
-  if (data.ref == 1) {
-    const { data: oldData, error: fetchError } = await supabase
-      .from('customer')
-      .select('replace') // Corrected to fetch 'replace' instead of 'ref'
-      .eq('uid', data.uid)
-      .single();
+        <div style={{ height: '35rem' }} class="w-11/12 mx-auto p-2 scrollabler overflow-scroll">
+          <input
+            type="text"
+            placeholder="Search by name"
+            class="mb-4 p-2 border rounded w-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+          />
+          <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
+            <thead>
+              <tr class="bg-gray-200 text-gray-800">
+                <th class="px-4 py-2 border-b">#</th>
+                <th class="px-4 py-2 border-b">User</th>
+                <th class="px-4 py-2 border-b">Image</th>
+                <th class="px-4 py-2 border-b">Action</th>
+                <th class="px-4 py-2 border-b">Ref</th>
+                <th class="px-4 py-2 border-b">Amount</th>
+                <th class="px-4 py-2 border-b">Chat</th>
+              </tr>
+            </thead>
+            <tbody>
+              {customers
+                .filter((data) => data.name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter by name
+                .map((data, index) => (
+                  <tr key={index} class="text-gray-600 bg-gray-50">
+                    <td class="px-4 py-2 border-b text-center">{index + 1}</td>
+                    <td class="px-4 py-2 border-b">{data.name}</td>
+                    <td class="px-4 py-2 border-b text-center">
+                      <img
+                        src={data.image}
+                        alt={data.name}
+                        class="h-10 w-10 rounded-full cursor-pointer"
+                        onClick={() => setModalImage(data.image)} // Set modal image on click
+                      />
+                    </td>
+                    <td class="px-4 py-2 border-b">{data.status}</td>
+                    <td class="px-4 py-2 border-b">{data.ref}</td>
+                    <td class="px-4 flex py-2 border-b">
+                      <input
+                        type="number"
+                        value={data.amount} // Set input value to current amount
+                        onChange={(e) => {
+                          const updatedCustomers = [...customers];
+                          updatedCustomers[index].amount = e.target.value;
+                          setCustomers(updatedCustomers);
+                        }} // Update the local state on input change
+                        className="border px-2 py-1"
+                      />
+                      <button
+                        onClick={() => handleAmountChange(data.name, data.amount)}
+                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                      >
+                        Update
+                      </button>
+                    </td>
+                    <td class="px-4 py-2 border-b">
+                      <a href={`https://t.me/${data.chat}`} target="_blank" rel="noopener noreferrer">
+                        <i className="fab fa-telegram-plane text-blue-500 text-xl"></i>
+                      </a>
+                    </td>
+                    <td class="px-4 py-2 border-b">
+                      <a
+                        onClick={async () => {
+                          if (data.ref == 1) {
+                            const { data: oldData, error: fetchError } = await supabase
+                              .from('customer')
+                              .select('replace')
+                              .eq('uid', data.uid)
+                              .single();
 
-    if (fetchError) {
-      console.error("Failed to fetch unbanned status:", fetchError);
-    } else if (oldData) {
-      const { error: updateError } = await supabase
-        .from('customer')
-        .update({ ref: oldData.replace }) // Corrected to update 'ref' with 'replace'
-        .eq('uid', data.uid);
+                            if (fetchError) {
+                              console.error("Failed to fetch unbanned status:", fetchError);
+                            } else if (oldData) {
+                              const { error: updateError } = await supabase
+                                .from('customer')
+                                .update({ ref: oldData.replace })
+                                .eq('uid', data.uid);
 
-      if (updateError) {
-        console.error("Failed to update unbanned status:", updateError);
-      } else {
-        Swal.fire({
-          icon: "success",
-          title: "Unbanned",
-          text: "Account unbanned.",
-        });
-      }
-    }
-  } else {
-    const { data: oldData, error: fetchError } = await supabase
-      .from('customer')
-      .select('ref') // Corrected to fetch 'ref' instead of 'replace'
-      .eq('uid', data.uid)
-      .single();
+                              if (updateError) {
+                                console.error("Failed to update unbanned status:", updateError);
+                              } else {
+                                Swal.fire({
+                                  icon: "success",
+                                  title: "Unbanned",
+                                  text: "Account unbanned.",
+                                });
+                              }
+                            }
+                          } else {
+                            const { data: oldData, error: fetchError } = await supabase
+                              .from('customer')
+                              .select('ref')
+                              .eq('uid', data.uid)
+                              .single();
 
-    if (fetchError) {
-      console.error("Failed to fetch banned status:", fetchError);
-    } else if (oldData && oldData.ref) {
-      const { error: updateError } = await supabase
-        .from('customer')
-        .update({ref:1,  replace: oldData.ref }) // Corrected to update 'replace' with 'ref'
-        .eq('uid', data.uid);
+                            if (fetchError) {
+                              console.error("Failed to fetch banned status:", fetchError);
+                            } else if (oldData && oldData.ref) {
+                              const { error: updateError } = await supabase
+                                .from('customer')
+                                .update({ ref: 1, replace: oldData.ref })
+                                .eq('uid', data.uid);
 
-      if (updateError) {
-        console.error("Failed to update banned status:", updateError);
-      } else {
-        Swal.fire({
-          icon: "success",
-          title: "Banned",
-          text: "Account banned.",
-        });
-      }
-    }
-  }
-}}
->{data.ref == 1 ? "Unbanned" : "Ban"}</a>
-
-                            </td>
-                            </tr>
-                          ))}
-                          </tbody>
-                        </table>
-                        </div>
-                        {/* Modal for displaying image */}
+                              if (updateError) {
+                                console.error("Failed to update banned status:", updateError);
+                              } else {
+                                Swal.fire({
+                                  icon: "success",
+                                  title: "Banned",
+                                  text: "Account banned.",
+                                });
+                              }
+                            }
+                          }
+                        }}
+                      >
+                        {data.ref == 1 ? "Unbanned" : "Ban"}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Modal for displaying image */}
         {modalImage && (
           <div
             class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
