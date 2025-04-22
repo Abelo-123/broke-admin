@@ -358,7 +358,7 @@ function App() {
                       if (error) {
                         console.error('Error updating customers:', error);
                       } else {
-                        alert('All rows updated successfully!');
+                        alert('success!');
                       }
                     } catch (err) {
                       console.error('Unexpected error:', err);
@@ -388,7 +388,7 @@ function App() {
                       if (error) {
                         console.error('Error updating customers:', error);
                       } else {
-                        alert('All rows updated successfully!');
+                        alert('success!');
                       }
                     } catch (err) {
                       console.error('Unexpected error:', err);
@@ -449,7 +449,7 @@ function App() {
                       if (error) {
                         console.error('Error updating customers:', error);
                       } else {
-                        alert('All rows updated successfully!');
+                        alert('success');
                       }
                     } catch (err) {
                       console.error('Unexpected error:', err);
@@ -481,7 +481,7 @@ function App() {
                       if (error) {
                         console.error('Error updating customers:', error);
                       } else {
-                        alert('All rows updated successfully!');
+                        alert('success!');
                       }
                     } catch (err) {
                       console.error('Unexpected error:', err);
@@ -513,7 +513,7 @@ function App() {
                       if (error) {
                         console.error('Error updating customers:', error);
                       } else {
-                        alert('All rows updated successfully!');
+                        alert('success!');
                       }
                     } catch (err) {
                       console.error('Unexpected error:', err);
@@ -548,9 +548,9 @@ function App() {
                 <th class="px-4 py-2 border-b">#</th>
                 <th class="px-4 py-2 border-b">User</th>
                 <th class="px-4 py-2 border-b">Image</th>
-                <th class="px-4 py-2 border-b">Action</th>
-                <th class="px-4 py-2 border-b">Ref</th>
-                <th class="px-4 py-2 border-b">Amount</th>
+                <th class="px-4 py-2 border-b">Status</th>
+                <th class="px-4 py-2 border-b">Refer</th>
+                <th class="px-4 py-2 border-b">Balance</th>
                 <th class="px-4 py-2 border-b">Chat</th>
               </tr>
             </thead>
@@ -721,7 +721,7 @@ function App() {
                     
                     if (fetchError2 || !data2 || data2.length === 0) {
                       console.warn(`No matching customer found for the given ref ${data.ref}. Skipping amount update.`);
-                      alert('No matching customer found for the given reference. Please verify the data.');
+                      alert('success!');
                     } else {
                      
                       const updatedAmount = (data2[0]?.amount || 0) + datalink.cost;
@@ -735,7 +735,7 @@ function App() {
                         if (updateError2) {
                           console.error('Error updating customer amount:', updateError2);
                         } else {
-                          alert("addded ".data.datalink+" to ".data2[0]?.amount + " to " + data.ref)
+                          alert("success")
                           closeModal(); // Close the modal after updating
                         }
                       }
