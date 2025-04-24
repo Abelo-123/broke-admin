@@ -571,7 +571,7 @@ function App() {
                           onClick={() => setModalImage(data.image)} // Set modal image on click
                         />
                       </td>
-                      <td class="px-4 py-2 border-b">{data.status}</td>
+                      <td style={{cursor: 'pointer'}} class="px-4 py-2 border-b">{data.status}</td>
                       <td class="px-4 py-2 border-b">{data.ref}</td>
                       <td class="px-4 flex py-2 border-b">
                         <input
@@ -598,6 +598,7 @@ function App() {
                       </td>
                       <td class="px-4 py-2 border-b">
                         <a
+                          style={{cursor: 'pointer'}}
                           onClick={async () => {
                             if (data.ref == 1) {
                               const { data: oldData, error: fetchError } = await supabase
